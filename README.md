@@ -1,102 +1,70 @@
 <div align="center">
-  <img src="./static/img/icon.jpg" height="300px" width="300px">
+  <img src="./static/img/icon.jpg" height="220" width="220" alt="Ferret AI icon">
 
-  # 🦦 Ferret AI
-  ### Local • Privacy-First • Developer-Focused AI Assistant
+  # Ferret AI
+  ### A pretty local assistant for everyday thinking
 </div>
 
----
+Ferret AI is a local, privacy-first assistant powered by Ollama. It is meant to feel calm and friendly in the browser, colorful and pleasant in the terminal, and useful for more than code.
 
-## 🚀 What is Ferret AI?
+Use it for:
 
-**Ferret AI** is a fully local, privacy-first coding assistant powered by `deepseek-coder:6.7b` via Ollama.
+- everyday questions and second opinions
+- writing, rewriting, and translation
+- planning small projects or study sessions
+- explaining concepts
+- coding, debugging, reviewing, and refactoring
+- summarizing files and old chat logs
 
-No cloud.  
-No API keys.  
-No telemetry.  
+## Default Model
 
-Just fast, offline AI designed for developers.
+Ferret now uses `llama3.2` by default.
 
-Optimized for:
-- 🇧🇷 Portuguese (PT-BR)
-- 🇺🇸 English (EN-US) ~> (mainly language)
-
-By default, it returns properly formatted code unless explanations are explicitly requested.
-
----
-
-## 🎥 Demo
-
-### App Interface
-https://github.com/user-attachments/assets/3003f325-2567-4dff-b7d6-67a3f7c21d15
-
-### Terminal Interface
-https://github.com/user-attachments/assets/e60a5257-e817-43ec-a748-0f1f58f922b7
-
-### Log Save
-https://github.com/user-attachments/assets/681d6de7-59aa-464c-b2cd-8db9d6ecbaef
-
----
-
-## ✨ Features
-
-- 🖥 100% Local AI (runs entirely on your machine)
-- 🔐 Privacy-first – no external APIs
-- 🤖 Powered by DeepSeek-Coder 6.7B
-- 📦 Automatic model detection & download
-- 🎨 Color-coded terminal interface
-- 🌎 Multi-language support (PT-BR & EN-US)
-- 💻 Built for coding, snippets & dev assistance
-- 🧠 Uses Ollama CLI for model management
-- 📃Conversation_log auto-save
-
-
----
-
-## ⚡ Quick Start (Recommended)
+That model is a good local daily-driver choice because it is small, general-purpose, multilingual, and lighter than bigger coding-focused models. It still handles code, but it is not limited to coding.
 
 ```bash
-git clone https://github.com/PinkMath/Ferret-AI.git
-cd Ferret-AI
-python installer.py
+ollama pull llama3.2
 ```
 
-> ⚠ This installer automatically checks dependencies, installs Ollama if needed (Linux), and downloads the deepseek-coder:6.7b model.
+You can override the model any time:
 
-- Once installed;
-```bash
+```powershell
+$env:FERRET_MODEL = "deepseek-coder:6.7b"
 python app.py
 ```
 
-- Or terminal mode:
+## Features
+
+- Local Ollama chat with `llama3.2` by default
+- Polished web interface with light/dark theme toggle
+- Multiple web conversations without losing the current one
+- Drag-and-drop log import so terminal logs can continue in the browser
+- Terminal interface with colorful session UI
+- Natural English and PT-BR behavior
+- Streaming responses
+- Code block copy in the web UI
+- Better terminal `/copy` behavior:
+  - `/copy` copies the newest code block
+  - `/copy 1` copies block 1 from the latest response
+  - `/copy list` shows latest response blocks
+- `/style` command in terminal mode
+- File summary, explanation, and refactor commands
+- Project folder indexing for code questions
+- Local daily logs in `logs_Ferret`
+
+## Quick Start
+
 ```bash
-python terminalAI/main.py
-```
-
----
-
-# 🛠 Installation
-
-## Option 1 — Installer (In Development)
-
-```bash
-git clone https://github.com/PinkMath/Ferret-AI.git
+git clone https://github.com/loavy/Ferret-AI.git
 cd Ferret-AI
 python installer.py
+python app.py
 ```
 
-### The installer will:
-- ✔ Check Python version
-- ✔ Install `requests` if missing
-- ✔ Check if Ollama CLI is installed
-- ✔ Auto-install Ollama (Linux)
-- ✔ Prompt manual install (Windows)
-- ✔ Pull `deepseek-coder:6.7b` if missing
+Open:
 
-Run the app after installation:
-
-```bash
-python app.py
+```text
+http://127.0.0.1:5000
 ```
 
 Terminal mode:
@@ -105,142 +73,125 @@ Terminal mode:
 python terminalAI/main.py
 ```
 
----
+## Requirements
 
-## Option 2 — Manual Installation
+- Python 3.10+
+- Ollama installed and running
+- `llama3.2` pulled locally
 
-### Step 1 — Install Python (3.8+)
-
-**Linux (apt):**
-```bash
-sudo apt update
-sudo apt install python3 python3-pip
-```
-
-**Linux (pacman):**
-```bash
-sudo pacman -Sy
-sudo pacman -S python python-pip
-```
-
-**Windows:**  
-Download from: https://www.python.org/downloads/
-
----
-
-### Step 2 — Install Dependencies
+Manual setup:
 
 ```bash
-pip install requests flask pyperclip
-```
-
----
-
-### Step 3 — Install Ollama CLI
-
-**Linux:**
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-**Windows:**  
-Download the official installer:  
-https://ollama.com/download/windows  
-
-Ensure `ollama.exe` is in your PATH.
-
----
-
-### Step 4 — Pull the Model
-
-```bash
-ollama pull deepseek-coder:6.7b
-```
-
----
-
-### Step 5 — Run Ferret AI
-
-```bash
+pip install -r requirements.txt
+ollama pull llama3.2
 python app.py
 ```
 
-Or terminal mode:
+## Configuration
+
+Ferret works without configuration, but these environment variables are supported:
 
 ```bash
-python terminalAI/main.py
+FERRET_MODEL=llama3.2
+FERRET_API_URL=http://localhost:11434/api/chat
+FERRET_LOG_DIR=~/logs_Ferret
+FERRET_MAX_HISTORY_MESSAGES=40
+FERRET_MAX_FILE_CHARS=18000
 ```
 
----
+PowerShell example:
 
-# 💻 Usage
-> ⚠ These commands only works in the terminal-mode (terminalAI/main.py)!!!
+```powershell
+$env:FERRET_MODEL = "llama3.2"
+python app.py
+```
 
-<div align="center">
+## Web Commands
 
-Commands | Shortcuts | Combo | Exec
-| --- | --- | --- | --- |
-/exit | none | none | Quit
-/clear | none | none | Clean the chat
-/code | none | none | Allow paste codes
-/copy <num> | none | none | Copy the codes that the AI sent
-/help | /h | none | Show  the commands
-/file {path} | /f {path} | /f --summary {path} <br/> /f --explain {path} <br/> /f --refactor {path} | The AI reads that file
-/project {combo} {dir} | /p {combo} {dir} | /p add {dir} <br/> /p remove <br/> /p list <br/> /p ask {question} | The AI reads a whole folder
-/resetlog | /rl | none | Rebuild the folder and the log file
-</div>
+```text
+/clear              Start a fresh chat
+/log                List saved chat logs
+/log filename.txt   Summarize a saved log
+```
 
----
+## Web Conversations
 
-# 🧩 Tech Stack
+The web UI keeps multiple conversations in the left panel. Click `New chat` to start another conversation without deleting the current one, then switch back any time from the list.
 
-- Python
-- Ollama
-- DeepSeek-Coder 6.7B
-- Flask
-- Requests
+To continue an old session, drag a Ferret `.txt` log into the import box or click `Import log`. Ferret will reconstruct old `USER` and `AI` turns when the log uses the normal saved format, then the imported log becomes a normal conversation.
 
----
+Use the conversation toggle in the top bar to hide or show the sidebar. Each conversation also has a delete button, and deleting the active chat automatically opens the next available one.
 
-# 🐛 Troubleshooting
+## Terminal Styles
 
-**Missing `requests` error**
+Run:
+
+```text
+/style
+```
+
+Available styles:
+
+- `friend` for everyday conversation
+- `thinker` for careful explanations
+- `writer` for wording, tone, translation, and structure
+- `reviewer` for code review
+- `debugger` for tracing bugs
+- `concise` for shorter answers
+
+## Terminal Commands
+
+```text
+/help                         Show commands
+/style                        Change conversation style
+/clear                        Reset conversation context
+/exit                         Quit
+/code <lang>                  Paste multi-line code, then send with /end
+/copy                         Copy the newest code block
+/copy <num>                   Copy a block from the latest AI response
+/copy list                    List latest response code blocks
+/file <path>                  Send a file to Ferret
+/file --summary <path>        Summarize a file
+/file --explain <path>        Explain a file
+/file --refactor <path>       Ask for a refactor
+/project add <folder>         Index a project folder
+/project list                 Show indexed files
+/project ask <question>       Ask about indexed code
+/project remove               Unload the project
+/resetlog                     Recreate today's terminal log
+```
+
+Shortcuts:
+
+```text
+/f   -> /file
+/p   -> /project
+/h   -> /help
+/rl  -> /resetlog
+```
+
+## Troubleshooting
+
+If the web UI says Ollama is offline:
+
 ```bash
-pip install requests
+ollama serve
 ```
 
-**Ollama CLI not found**
-- Ensure it is installed
-- Ensure it is added to PATH
+If the model is missing:
 
-**AI not running (Windows)**
-- Ensure the Ollama's running in the background
-
-**Model missing**
 ```bash
-ollama pull deepseek-coder:6.7b
+ollama pull llama3.2
 ```
 
-**App not running**
-- Ensure Python 3.8+
-- Ensure virtual environment is activated (if using venv)
+If dependencies are missing:
 
----
+```bash
+pip install -r requirements.txt
+```
 
-# 🛣 Roadmap
+If the status says the model is missing but chat works, restart the Flask server so the latest status check code is running.
 
-- [ ] GUI improvements
-- [ ] Model selector support
-- [ ] Config file system
-- [ ] Plugin architecture
-- [ ] Performance optimizations
+## Notes
 
----
-
-# 🎨 Credits - Art
-
-☁️ Made by Cloud
-
----
-
-⭐ If you like the project, consider starring the repo!
+Ferret is intentionally local-first. There are no cloud API keys, telemetry hooks, or remote model calls in the app code.

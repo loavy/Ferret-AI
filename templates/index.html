@@ -10,43 +10,79 @@
 </head>
 
 <body>
-  <div class="top-bar">
-    <div>🦦 Ferret AI</div>
-    <div class="status">● Online - |PORT~5000|</div>
-  </div>
-
-  <div class="chat-container">
-    <div id="messages"></div>
-    <hr>
-
-    <div class="input-area">
-      <!-- Theme Toggle -->
-      <button id="theme-button" class="theme-button" onclick="toggleTheme()">
-        <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-          class="bi bi-moon" viewBox="0 0 16 16">
-          <path
-            d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286" />
-        </svg>
-        <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-          class="bi bi-brightness-high" viewBox="0 0 16 16">
-          <path
-            d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708" />
+  <header class="top-bar">
+    <div class="brand">
+      <img src="/static/img/icon.jpg" alt="">
+      <div>
+        <strong>Ferret AI</strong>
+        <span>Local assistant - {{ model }}</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="status" class="status">Checking...</span>
+      <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle conversations" aria-label="Toggle conversations" aria-expanded="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5h16M4 12h10M4 19h16"></path>
         </svg>
       </button>
-
-      <!-- Textarea -->
-      <textarea id="messageInput" placeholder="Type a message..."></textarea>
-
-      <!-- Send Button -->
-      <button class="send-button" onclick="sendMessage()">
-        <svg height="24" width="24" preserveAspectRatio="xMidYMid meet" class="send" fill="none">
-          <path
-            d="M5.4 19.425C5.06667 19.5583 4.75 19.5291 4.45 19.3375C4.15 19.1458 4 18.8666 4 18.5V14L12 12L4 9.99997V5.49997C4 5.1333 4.15 4.85414 4.45 4.66247C4.75 4.4708 5.06667 4.44164 5.4 4.57497L20.8 11.075C21.2167 11.2583 21.425 11.5666 21.425 12C21.425 12.4333 21.2167 12.7416 20.8 12.925L5.4 19.425Z"
-            fill="currentColor"></path>
+      <button id="clear-button" class="icon-button" type="button" title="New chat" aria-label="New chat">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+      </button>
+      <button id="theme-button" class="icon-button" type="button" title="Toggle theme" aria-label="Toggle theme">
+        <svg id="moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8Z"></path>
+        </svg>
+        <svg id="sun" viewBox="0 0 24 24" aria-hidden="true" hidden>
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
         </svg>
       </button>
     </div>
-  </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="conversation-panel">
+      <div class="panel-actions">
+        <button id="new-conversation-button" class="panel-button" type="button">New chat</button>
+        <button id="import-button" class="panel-button secondary" type="button">Import log</button>
+        <input id="log-import-input" type="file" accept=".txt,.log,text/plain" hidden>
+      </div>
+      <div id="drop-zone" class="drop-zone">
+        <strong>Drop a Ferret log</strong>
+        <span>Terminal or web logs become a chat you can continue.</span>
+      </div>
+      <div class="conversation-heading">Conversations</div>
+      <div id="conversation-list" class="conversation-list" aria-label="Conversations"></div>
+    </aside>
+
+    <section class="chat-shell">
+      <section id="messages" aria-live="polite">
+        <div class="welcome">
+          <div class="welcome-mark">Ferret</div>
+          <h1>What should we think through?</h1>
+          <p>Ask for code, writing, planning, explanations, debugging, translation, or a second opinion.</p>
+          <div class="quick-actions" aria-label="Prompt shortcuts">
+            <button type="button" data-prompt="Help me think through this:\n\n">Think</button>
+            <button type="button" data-prompt="Make this clearer and better written:\n\n">Write</button>
+            <button type="button" data-prompt="Help me debug this:\n\n">Debug</button>
+            <button type="button" data-prompt="Give me a small practical plan for:\n\n">Plan</button>
+          </div>
+        </div>
+      </section>
+
+      <form id="composer" class="input-area">
+        <textarea id="messageInput" rows="1" placeholder="Message Ferret..."></textarea>
+        <button id="send-button" class="send-button" type="submit" title="Send" aria-label="Send">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+            <path d="M22 2 11 13"></path>
+          </svg>
+        </button>
+      </form>
+    </section>
+  </main>
 
   <script src="/static/script.js"></script>
 </body>

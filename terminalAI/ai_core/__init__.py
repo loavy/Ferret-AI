@@ -15,8 +15,9 @@ class FerretAIInit:
         # Chat context
         self.messages = []
         self.code_blocks = []
+        self.last_code_blocks = []
 
         self._select_persona()
         self.log_file = os.path.join(CONFIG["log_dir"], f"chat_TERM_{datetime.now().strftime('%Y%m%d')}.txt")
         self._setup_env()
-# ur own AI, made by Mathus Souza, GitHub: https://github.com/PinkMath
+# ur own AI, made by Mathus Souza, GitHub: https://github.com/loavy

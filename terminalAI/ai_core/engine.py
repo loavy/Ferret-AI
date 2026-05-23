@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Internal imports from our package
-from .config import CONFIG, PERSONAS, C, possible_paths
+from .config import BASE_COMPANION_PROMPT, CONFIG, PERSONAS, C
 from .utils import _print_banner, _typing_indicator, _get_terminal_width
 from . import FerretAIInit
 
@@ -34,9 +34,10 @@ class FerretAI(FerretAIInit):
 
     # --- PERSONA SELECTION ---
     def _select_persona(self):
-        print("\nSelect AI persona or number:")
+        print(f"\n{C['brand']}{C['bold']}Choose a conversation style{C['reset']}")
         for i, (key, desc) in enumerate(PERSONAS.items(), start=1):
-            print(f"  {i} - {key} : {desc}")
+            short_desc = desc.replace(BASE_COMPANION_PROMPT, "").strip()
+            print(f"  {C['cyan']}{i}{C['reset']} {C['orange']}{key.ljust(9)}{C['reset']} {C['muted']}{short_desc[:92]}{C['reset']}")
         
         choice = input("Persona/Number: ").strip().lower()
 
@@ -47,14 +48,14 @@ class FerretAI(FerretAIInit):
         elif choice.isdigit() and 1 <= int(choice) <= len(persona_keys):
             selected_persona = persona_keys[int(choice)-1]
         else:
-            print("Invalid input, defaulting to first persona")
+            print("Invalid input, defaulting to friend")
             selected_persona = persona_keys[0]
 
         # Save the description in CONFIG, but return the name
         CONFIG["persona"] = PERSONAS[selected_persona]
         self.messages.append({"role": "system", "content": CONFIG["persona"]})
 
-        print(f"{C['ai']}Persona set: {selected_persona}{C['reset']}\n")
+        print(f"{C['green']}Style set:{C['reset']} {C['ai']}{selected_persona}{C['reset']}\n")
 
     # --- HELP MENU ---
     def _show_help(self):
@@ -66,7 +67,10 @@ class FerretAI(FerretAIInit):
   /clear                    Reset conversation context
   /exit                     Quit application
   /code <lang>              Enter multi-line code mode
-  /copy <num>               Copy AI code block by number
+  /copy                     Copy latest code block
+  /copy <num>               Copy code block from latest AI response
+  /copy list                Show latest response code blocks
+  /style                    Change conversation style
 
 {C['info']}File Commands:{C['reset']}
   /f | /file <path>              Send file to AI
@@ -111,24 +115,25 @@ class FerretAI(FerretAIInit):
         _print_banner()
 
         # Environment info
-        print(f"{C['cyan']}─────────────────────────── Environment ───────────────────────────{C['reset']}")
-        print(f"● {C['context']}Model:{C['reset']} {CONFIG['model']}")
-        print(f"● {C['info']}Commands:{C['reset']} /clear {C['info']}|{C['reset']} /exit {C['info']}|{C['reset']} /code {C['info']}|{C['reset']} /copy <num> {C['info']}|{C['reset']} /help {C['info']}|{C['reset']} /resetlog")
-        print(f"● {C['info']}File:{C['reset']} /file <path> {C['info']}|{C['reset']} --summary {C['info']}|{C['reset']} --explain {C['info']}|{C['reset']} --refactor")
-        print(f"● {C['info']}Project:{C['reset']} /project add <dir> {C['info']}|{C['reset']} remove {C['info']}|{C['reset']} list {C['info']}|{C['reset']} ask <question>")
-        print(f"● {C['context']}Logs:{C['reset']} saving to {CONFIG['log_dir']}")
-        print(f"● {C['yellow']}Tip:{C['reset']} Use '/clear' to reset context without clearing logs")
-        print(f"{C['cyan']}────────────────────────────────────────────────────────────────────{C['reset']}\n")
+        print(f"{C['code_border']}+----------------------------- Session ------------------------------+{C['reset']}")
+        print(f"{C['code_border']}|{C['reset']} {C['pink']}Model{C['reset']}    {C['muted']}->{C['reset']} {C['ai_alt']}{CONFIG['model']}{C['reset']}")
+        print(f"{C['code_border']}|{C['reset']} {C['orange']}Ask{C['reset']}      {C['muted']}->{C['reset']} everyday questions, writing, planning, studying, code")
+        print(f"{C['code_border']}|{C['reset']} {C['green']}Commands{C['reset']} {C['muted']}->{C['reset']} {C['cyan']}/clear{C['reset']} {C['muted']}|{C['reset']} {C['cyan']}/exit{C['reset']} {C['muted']}|{C['reset']} {C['cyan']}/style{C['reset']} {C['muted']}|{C['reset']} {C['cyan']}/copy{C['reset']} {C['muted']}|{C['reset']} {C['cyan']}/help{C['reset']}")
+        print(f"{C['code_border']}|{C['reset']} {C['yellow']}File{C['reset']}     {C['muted']}->{C['reset']} {C['cyan']}/file <path>{C['reset']} {C['muted']}|{C['reset']} --summary {C['muted']}|{C['reset']} --explain {C['muted']}|{C['reset']} --refactor")
+        print(f"{C['code_border']}|{C['reset']} {C['purple']}Project{C['reset']}  {C['muted']}->{C['reset']} {C['cyan']}/project add <dir>{C['reset']} {C['muted']}|{C['reset']} list {C['muted']}|{C['reset']} ask <question>")
+        print(f"{C['code_border']}|{C['reset']} {C['blue']}Logs{C['reset']}     {C['muted']}->{C['reset']} {CONFIG['log_dir']}")
+        print(f"{C['code_border']}+--------------------------------------------------------------------+{C['reset']}")
+        print(f"{C['yellow']}Tip:{C['reset']} Use {C['cyan']}/style{C['reset']} for tone, {C['cyan']}/copy{C['reset']} for the latest code block.\n")
 
         # Friendly greeting
         greetings = [
-            "Hey there! 👋 Ready to code?", 
-            "What's up? 😎 Let's make some magic!", 
-            "Hello, human! 🤖 Ferret AI at your service!",
-            "Greetings! 🌟 How can I assist today?",
-            "Hi there! 🐾 Let's get to work!"
+            "Hey, I'm here. What are we thinking through today?",
+            "Ready when you are. Bring me the question, the bug, or the messy thought.",
+            "Fresh session. We can keep it simple and useful.",
+            "Good to see you. What needs figuring out?",
+            "Let's take it one clear step at a time."
         ]
-        print(f"{C['ai']}{random.choice(greetings)}{C['reset']}\n")
+        print(f"{C['ai']}Ferret:{C['reset']} {C['ai_alt']}{random.choice(greetings)}{C['reset']}\n")
 
     # --- LOGGING ---
     def log_interaction(self, user_text, ai_text):
@@ -142,20 +147,40 @@ class FerretAI(FerretAIInit):
         bar_length = 12
         filled = int(bar_length * ratio)
         empty = bar_length - filled
-        bar = "█" * filled + "░" * empty
+        bar = "#" * filled + "-" * empty
         color = C['context'] if ratio <= 0.4 else C['info'] if ratio <= 0.75 else C['error']
-        return f"{color}[{bar}] {int(ratio*100)}%{C['reset']}"
+        return f"{C['muted']}context {color}[{bar}] {int(ratio*100)}%{C['reset']}"
 
     # --- CODE BLOCK RENDERING ---
-    def _render_code_block(self, code_text, show_gutter=True):
+    def _normalize_code_block(self, code_text):
         lines = code_text.strip().split("\n")
         if lines and lines[0].startswith("```"):
+            first = lines[0].strip().strip("`").strip()
+            language = first or ""
             lines = lines[1:]
+        else:
+            language = ""
         if lines and lines[-1].startswith("```"):
             lines = lines[:-1]
+        if not language and len(lines) > 1:
+            possible_language = lines[0].strip()
+            if (
+                possible_language
+                and len(possible_language) <= 24
+                and " " not in possible_language
+                and all(char.isalnum() or char in "_+-#." for char in possible_language)
+            ):
+                language = possible_language
+                lines = lines[1:]
+
+        return language, "\n".join(lines).strip("\n")
+
+    def _render_code_block(self, code_text, show_gutter=True, block_number=None):
+        language, clean_code = self._normalize_code_block(code_text)
+        lines = clean_code.split("\n") if clean_code else [""]
 
         term_width = _get_terminal_width()
-        gutter = f"{C['code']}│{C['reset']}"
+        gutter = f"{C['code_border']}|{C['reset']}"
         max_line_width = term_width - len(gutter) - 5
         wrapped_lines = []
 
@@ -163,10 +188,15 @@ class FerretAI(FerretAIInit):
             wrapped_lines.extend(textwrap.wrap(line, width=max_line_width) or [""])
 
         if show_gutter:
+            label = f"code block {block_number}" if block_number is not None else "code block"
+            if language:
+                label += f" ({language})"
+            print(f"\n{C['panel']}{C['ai_alt']} {label} {C['reset']} {C['muted']}use{C['reset']} {C['cyan']}/copy {block_number or 1}{C['reset']}")
             for idx, line in enumerate(wrapped_lines, start=1):
                 number_str = str(idx).rjust(3)
-                print(f"{gutter} {number_str} {C['light_yellow']}{line.ljust(max_line_width)}{C['reset']}")
-        return "\n".join(wrapped_lines)
+                line_color = C['light_yellow'] if idx % 2 else C['ai_alt']
+                print(f"{gutter} {C['muted']}{number_str}{C['reset']} {line_color}{line.ljust(max_line_width)}{C['reset']}")
+        return clean_code
 
     # --- PYTHON SYMBOL EXTRACTION ---
     def _extract_python_blocks(self, content):
@@ -230,14 +260,14 @@ class FerretAI(FerretAIInit):
         while True:
             try:
                 ctx_size = len(self.messages) - 1
-                prompt = f"{self._context_bar(ctx_size)}\n{C['prompt']} λ{C['reset']} "
+                prompt = f"{self._context_bar(ctx_size)}\n{C['prompt']}{C['bold']}you{C['reset']} {C['muted']}>{C['reset']} "
                 first_line = input(prompt).strip()
                 if not first_line:
                     continue
 
-                # Replace short commands with full commands
+                # Replace short commands with full commands without mangling /project or /file.
                 for short, full in short_commands.items():
-                    if first_line.startswith(short):
+                    if first_line == short or first_line.startswith(short + " "):
                         first_line = first_line.replace(short, full, 1)
                         break
 
@@ -253,19 +283,28 @@ class FerretAI(FerretAIInit):
                     self._show_help()
                     continue
 
+                # --- STYLE ---
+                if cmd == '/style':
+                    self._select_persona()
+                    self.messages = [{"role": "system", "content": CONFIG["persona"]}]
+                    print(f"{C['brand']}Started a fresh chat with the new style.{C['reset']}\n")
+                    continue
+
                 # --- REBUILD THE LOG ---
                 if cmd == '/resetlog':
-                    if not os.path.exists(CONFIG["log_dir"]):
-                        os.makedirs(CONFIG["log_dir"])
-                        print(f"\n{C['brand']}● {self.log_file} {C['ai']}~> rebuilded\n")
+                    os.makedirs(CONFIG["log_dir"], exist_ok=True)
+                    with open(self.log_file, "w", encoding="utf-8") as f:
+                        f.write(f"Ferret AI terminal log reset at {datetime.now():%Y-%m-%d %H:%M:%S}\n")
+                    print(f"\n{C['brand']}Log reset:{C['reset']} {self.log_file}\n")
                     continue
 
                 # --- CLEAR CONTEXT ---
                 if cmd == '/clear':
                     self.messages = [{"role": "system", "content": CONFIG["persona"]}]
                     self.code_blocks = []
+                    self.last_code_blocks = []
                     self._setup_env()
-                    print(f"{C['brand']}🗑️ Context purged. Memory fresh.{C['reset']}\n")
+                    print(f"{C['brand']}Context cleared. Fresh chat ready.{C['reset']}\n")
                     continue
 
                 # --- CODE MODE ---
@@ -291,18 +330,40 @@ class FerretAI(FerretAIInit):
 
                 # --- COPY CODE BLOCK ---
                 elif cmd.startswith('/copy'):
-                    if len(cmd.split()) == 2 and cmd.split()[1].isdigit():
-                        idx = int(cmd.split()[1]) - 1
-                        if 0 <= idx < len(self.code_blocks):
-                            if CLIPBOARD_ENABLED:
-                                pyperclip.copy(self.code_blocks[idx])
-                                print(f"{C['green']}Copied code block {idx+1} ✅{C['reset']}")
-                            else:
-                                print(f"{C['yellow']}pyperclip not installed.{C['reset']}")
+                    parts = cmd.split()
+                    if not self.last_code_blocks and not self.code_blocks:
+                        print(f"{C['yellow']}No code blocks to copy yet.{C['reset']}")
+                        continue
+
+                    if len(parts) == 1:
+                        selected = self.last_code_blocks[-1] if self.last_code_blocks else self.code_blocks[-1]
+                        label = "latest code block"
+                    elif len(parts) == 2 and parts[1] == "list":
+                        if not self.last_code_blocks:
+                            print(f"{C['yellow']}No code blocks in the latest response. Use /copy for the newest saved block.{C['reset']}")
                         else:
-                            print(f"{C['yellow']}Invalid code block number.{C['reset']}")
+                            print(f"{C['info']}Latest response code blocks:{C['reset']}")
+                            for idx, block in enumerate(self.last_code_blocks, start=1):
+                                first_line = block.strip().splitlines()[0] if block.strip() else "(empty)"
+                                preview = first_line[:60]
+                                print(f"  {idx}. {preview}")
+                        continue
+                    elif len(parts) == 2 and parts[1].isdigit():
+                        idx = int(parts[1]) - 1
+                        if not 0 <= idx < len(self.last_code_blocks):
+                            print(f"{C['yellow']}That number is not in the latest response. Use /copy list to see available blocks.{C['reset']}")
+                            continue
+                        selected = self.last_code_blocks[idx]
+                        label = f"latest response code block {idx+1}"
                     else:
-                        print(f"{C['yellow']}Usage: /copy <number>{C['reset']}")
+                        print(f"{C['yellow']}Usage: /copy | /copy <number> | /copy list{C['reset']}")
+                        continue
+
+                    if CLIPBOARD_ENABLED:
+                        pyperclip.copy(selected)
+                        print(f"{C['green']}Copied {label}.{C['reset']}")
+                    else:
+                        print(f"{C['yellow']}pyperclip not installed.{C['reset']}")
                     continue
 
                 # --- PROJECT COMMANDS ---
@@ -328,8 +389,10 @@ class FerretAI(FerretAIInit):
                         self.project_blocks = []
                         self.symbol_index = {}
                         print(f"{C['info']}Indexing project with symbol extraction...{C['reset']}")
-                        allowed_ext = (".py", ".js", ".jsx", ".ts", ".html", ".css", ".json", ".lua", ".c", ".cpp", ".md")
-                        for root, _, files in os.walk(folder):
+                        allowed_ext = (".py", ".js", ".jsx", ".ts", ".tsx", ".html", ".css", ".json", ".lua", ".c", ".cpp", ".md", ".toml", ".yaml", ".yml")
+                        ignored_dirs = {".git", ".venv", "venv", "env", "__pycache__", "node_modules", "dist", "build", ".next", ".pytest_cache"}
+                        for root, dirs, files in os.walk(folder):
+                            dirs[:] = [d for d in dirs if d not in ignored_dirs]
                             for file in files:
                                 if not file.endswith(allowed_ext):
                                     continue
@@ -411,7 +474,7 @@ class FerretAI(FerretAIInit):
                             used_files.add(path)
 
                         print(f"{C['info']}Using {len(used_files)} files ({used} chars).{C['reset']}")
-                        user_input = f"Answer using the relevant project code below. You can to read the files.\n{injection}\nQuestion: {question}\n"
+                        user_input = f"Answer using the relevant project code below. Cite file names when useful.\n{injection}\nQuestion: {question}\n"
 
                 # --- FILE COMMANDS ---
                 elif cmd.startswith('/file'):
@@ -438,7 +501,7 @@ class FerretAI(FerretAIInit):
                     except Exception as e:
                         print(f"{C['error']}Could not read file: {e}{C['reset']}")
                         continue
-                    max_chars = 15000
+                    max_chars = CONFIG["max_file_chars"]
                     if len(content) > max_chars:
                         print(f"{C['yellow']}File too large. Truncating to {max_chars} characters.{C['reset']}")
                         content = content[:max_chars]
@@ -483,11 +546,12 @@ class FerretAI(FerretAIInit):
 
                 stop_event.set()
                 spinner_thread.join()
-                print(f"\n{C['ai']}•ᴗ•{C['reset']} ", end="")
+                print(f"\n{C['brand']}{C['bold']}Ferret{C['reset']} {C['muted']}>{C['reset']} ", end="")
 
                 full_response = ""
                 in_code_block = False
                 code_buffer = ""
+                response_code_blocks = []
                 for line in response.iter_lines():
                     if not line:
                         continue
@@ -500,8 +564,12 @@ class FerretAI(FerretAIInit):
                             content = content[3:]
                             if not in_code_block and code_buffer:
                                 code_text = "```\n" + code_buffer + "\n```"
-                                self._render_code_block(code_text)
-                                self.code_blocks.append(self._render_code_block(code_text, show_gutter=False))
+                                clean_code = self._render_code_block(
+                                    code_text,
+                                    block_number=len(response_code_blocks) + 1,
+                                )
+                                self.code_blocks.append(clean_code)
+                                response_code_blocks.append(clean_code)
                                 code_buffer = ""
                             continue
                         if in_code_block:
@@ -521,10 +589,15 @@ class FerretAI(FerretAIInit):
 
                 if code_buffer.strip():
                     code_text = "```\n" + code_buffer.strip() + "\n```"
-                    self._render_code_block(code_text)
-                    self.code_blocks.append(self._render_code_block(code_text, show_gutter=False))
+                    clean_code = self._render_code_block(
+                        code_text,
+                        block_number=len(response_code_blocks) + 1,
+                    )
+                    self.code_blocks.append(clean_code)
+                    response_code_blocks.append(clean_code)
 
                 print("\n")
+                self.last_code_blocks = response_code_blocks
                 self.log_interaction(user_input, full_response)
                 self.messages.append({"role": "assistant", "content": full_response})
 
@@ -533,4 +606,4 @@ class FerretAI(FerretAIInit):
                 break
             except Exception as e:
                 print(f"\n{C['error']}Fault: {e}{C['reset']}\n")
-# ur own AI, made by Mathus Souza, GitHub: https://github.com/PinkMath
+# ur own AI, made by Mathus Souza, GitHub: https://github.com/loavy

@@ -1,4 +1,4 @@
-# ur own AI, made by Mathus Souza, GitHub: https://github.com/PinkMath
+# ur own AI, made by Mathus Souza, GitHub: https://github.com/loavy
 from ai_core.engine import FerretAI
 
 def main():
@@ -12,4 +12,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-# ur own AI, made by Mathus Souza, GitHub: https://github.com/PinkMath
+# ur own AI, made by Mathus Souza, GitHub: https://github.com/loavy
